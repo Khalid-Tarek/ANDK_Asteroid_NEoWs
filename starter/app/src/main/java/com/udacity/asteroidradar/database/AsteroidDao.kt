@@ -25,5 +25,7 @@ interface AsteroidDao {
 
     //TODO: Delete all asteroids before today
     //@Query("DELETE FROM asteroid_table WHERE ")
-    //suspend fun deleteOldAsteroids()
+    suspend fun deleteOldAsteroids(){
+
+    }
 }
