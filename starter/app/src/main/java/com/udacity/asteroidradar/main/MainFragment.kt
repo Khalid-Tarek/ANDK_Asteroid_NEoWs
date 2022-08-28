@@ -1,6 +1,7 @@
 package com.udacity.asteroidradar.main
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -12,6 +13,8 @@ import com.udacity.asteroidradar.database.AsteroidDatabase
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
 
 class MainFragment : Fragment() {
+
+    private val TAG = "MainFragment"
 
     private lateinit var viewModel: MainViewModel
 

@@ -1,11 +1,38 @@
 package com.udacity.asteroidradar.api
 
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.udacity.asteroidradar.database.Asteroid
 import com.udacity.asteroidradar.Constants
 import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
+import retrofit2.http.GET
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+
+private val moshi = Moshi.Builder()
+    .add(KotlinJsonAdapterFactory())
+    .build()
+
+private val retrofit = Retrofit.Builder()
+    .addConverterFactory(ScalarsConverterFactory.create())
+    .baseUrl(Constants.BASE_URL)
+    .build()
+
+interface NASANEoWsApiService {
+    @GET("neo/rest/v1/feed?start_date=2015-09-07&end_date=2015-09-08&api_key=DEMO_KEY")
+    fun getAsteroids(): Call<String>
+}
+
+object NASANEoWsApi {
+    val retrofitService : NASANEoWsApiService by lazy {
+        retrofit.create(NASANEoWsApiService::class.java)
+    }
+}
 
 fun parseAsteroidsJsonResult(jsonResult: JSONObject): ArrayList<Asteroid> {
     val nearEarthObjectsJson = jsonResult.getJSONObject("near_earth_objects")
@@ -57,3 +84,5 @@ private fun getNextSevenDaysFormattedDates(): ArrayList<String> {
 
     return formattedDateList
 }
+
+

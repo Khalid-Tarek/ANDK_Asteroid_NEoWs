@@ -1,18 +1,27 @@
 package com.udacity.asteroidradar.main
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.udacity.asteroidradar.api.NASANEoWsApi
+import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.Asteroid
 import com.udacity.asteroidradar.database.AsteroidDao
 import kotlinx.coroutines.launch
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainViewModel(
     val database: AsteroidDao,
     application: Application
 ) : AndroidViewModel(application) {
+
+    private val TAG = "MainViewModel"
 
     //private val _asteroids = database.getAllAsteroids()
     private val _asteroids = MutableLiveData<MutableList<Asteroid>>()
@@ -20,7 +29,23 @@ class MainViewModel(
         get() = _asteroids
 
     init {
-        testSomeAsteroids()
+        getAsteroids()
+    }
+
+    private fun getAsteroids() {
+        NASANEoWsApi.retrofitService.getAsteroids().enqueue( object: Callback<String> {
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                Log.i(TAG, "Failure: $t")
+            }
+
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                Log.i(TAG, response.toString())
+                val newList = parseAsteroidsJsonResult(JSONObject(response.body()!!))
+                Log.i(TAG, newList.toString())
+                _asteroids.value = newList
+            }
+        })
+
     }
 
     private fun testSomeAsteroids() {
