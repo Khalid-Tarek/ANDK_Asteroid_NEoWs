@@ -5,13 +5,11 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import com.udacity.asteroidradar.AsteroidAdapter
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.database.AsteroidDatabase
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
-import com.udacity.asteroidradar.detail.DetailFragment
-import com.udacity.asteroidradar.detail.DetailFragmentArgs
 
 class MainFragment : Fragment() {
 
@@ -37,7 +35,13 @@ class MainFragment : Fragment() {
             }
         })
 
-
+        val adapter = AsteroidAdapter(viewModel)
+        binding.asteroidRecycler.adapter = adapter
+        viewModel.asteroids.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                adapter.myData = it
+            }
+        })
 
         return binding.root
     }

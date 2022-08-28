@@ -8,9 +8,8 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 @Entity(tableName = "asteroid_table")
 data class Asteroid(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = false)
     val id: Long,
-    
     val codename: String,
     val closeApproachDate: String,
     val absoluteMagnitude: Double,
