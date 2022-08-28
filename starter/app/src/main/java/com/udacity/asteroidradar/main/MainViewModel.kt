@@ -14,9 +14,34 @@ class MainViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val _asteroids = database.getAllAsteroids()
-    val asteroids
+    //private val _asteroids = database.getAllAsteroids()
+    private val _asteroids = MutableLiveData<MutableList<Asteroid>>()
+    val asteroids: LiveData<MutableList<Asteroid>>
         get() = _asteroids
+
+    init {
+        testSomeAsteroids()
+    }
+
+    private fun testSomeAsteroids() {
+        _asteroids.value = mutableListOf(
+            Asteroid(50,
+            "Test Codename",
+            "2020-20-02",
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            false),
+            Asteroid(70,
+                "Alpha 20SX12",
+                "2022-01-01",
+                10.0,
+                10.0,
+                25.0,
+                26.0,
+                true))
+    }
 
     private val _navigateToAsteroid = MutableLiveData<Asteroid>()
     val navigateToAsteroid: LiveData<Asteroid>

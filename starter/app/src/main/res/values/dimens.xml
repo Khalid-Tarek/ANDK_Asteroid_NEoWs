@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="dimenMediumMargin">16dp</dimen>
+    <dimen name="dimenSmallMargin">8dp</dimen>
+    <dimen name="dimenMediumTextSize">24sp</dimen>
+    <dimen name="dimenSmallTextSize">18sp</dimen>
+</resources>
