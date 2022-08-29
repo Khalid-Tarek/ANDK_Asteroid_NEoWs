@@ -2,10 +2,12 @@ package com.udacity.asteroidradar.main
 
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.api.NASANEoWsApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.Asteroid
@@ -15,6 +17,9 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.lang.Exception
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainViewModel(
     val database: AsteroidDao,
@@ -28,24 +33,46 @@ class MainViewModel(
     val asteroids: LiveData<MutableList<Asteroid>>
         get() = _asteroids
 
+    private val _errorState = MutableLiveData<Throwable>()
+    val errorState: LiveData<Throwable>
+        get() = _errorState
+
     init {
         getAsteroids()
     }
 
     private fun getAsteroids() {
-        NASANEoWsApi.retrofitService.getAsteroids().enqueue( object: Callback<String> {
-            override fun onFailure(call: Call<String>, t: Throwable) {
+
+        val (startDate, endDate) = getQueryDates()
+
+        NASANEoWsApi.retrofitService.getAsteroids(startDate, endDate, Constants.API_KEY)
+            .enqueue( object: Callback<JSONObject> {
+
+            override fun onFailure(call: Call<JSONObject>, t: Throwable) {
                 Log.i(TAG, "Failure: $t")
+                enterErrorState(t)
             }
 
-            override fun onResponse(call: Call<String>, response: Response<String>) {
+            override fun onResponse(call: Call<JSONObject>, response: Response<JSONObject>) {
                 Log.i(TAG, response.toString())
-                val newList = parseAsteroidsJsonResult(JSONObject(response.body()!!))
-                Log.i(TAG, newList.toString())
+                val newList = parseAsteroidsJsonResult(response.body()!!)
                 _asteroids.value = newList
             }
         })
 
+    }
+
+    private fun getQueryDates(): Pair<String, String> {
+        val dateToday = Calendar.getInstance()
+        val dateAfterDefaultPeriod = dateToday.clone() as Calendar
+        dateAfterDefaultPeriod.add(Calendar.DAY_OF_MONTH, Constants.DEFAULT_END_DATE_DAYS)
+
+        val dateFormatter = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT, Locale.getDefault())
+
+        val startDate = dateFormatter.format(dateToday.time)
+        val endDate = dateFormatter.format(dateAfterDefaultPeriod.time)
+
+        return Pair(startDate, endDate)
     }
 
     private fun testSomeAsteroids() {
@@ -99,4 +126,13 @@ class MainViewModel(
     fun navigateToAsteroid(asteroid: Asteroid) {
         _navigateToAsteroid.value = asteroid
     }
+
+    fun handledError() {
+        _errorState.value = null
+    }
+
+    fun enterErrorState(t: Throwable) {
+        _errorState.value = t
+    }
+
 }

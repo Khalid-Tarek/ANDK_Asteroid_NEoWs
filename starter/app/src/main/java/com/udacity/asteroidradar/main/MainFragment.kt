@@ -1,8 +1,8 @@
 package com.udacity.asteroidradar.main
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -17,20 +17,32 @@ class MainFragment : Fragment() {
     private val TAG = "MainFragment"
 
     private lateinit var viewModel: MainViewModel
+    private lateinit var binding: FragmentMainBinding
+    private lateinit var adapter: AsteroidAdapter
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         setHasOptionsMenu(true)
-        val binding = FragmentMainBinding.inflate(inflater)
-
-        val application = requireNotNull(this.activity).application
-        val dataSource = AsteroidDatabase.getInstance(application).asteriodDao
-        val mainViewModelFactory = MainViewModelFactory(dataSource, application)
-        viewModel = ViewModelProvider(this, mainViewModelFactory).get(MainViewModel::class.java)
-
+        binding = FragmentMainBinding.inflate(inflater)
         binding.lifecycleOwner = this
-        binding.viewModel = viewModel
 
+        initializeViewModel()
+
+        initializeAdapter()
+
+        setupObservers()
+
+        return binding.root
+    }
+
+    private fun setupObservers() {
+        viewModel.asteroids.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                adapter.submitList(it)
+            }
+        })
         viewModel.navigateToAsteroid.observe(viewLifecycleOwner, Observer {
             it?.let {
                 findNavController().navigate(MainFragmentDirections.actionShowDetail(it))
@@ -38,15 +50,25 @@ class MainFragment : Fragment() {
             }
         })
 
-        val adapter = AsteroidAdapter(viewModel)
-        binding.asteroidRecycler.adapter = adapter
-        viewModel.asteroids.observe(viewLifecycleOwner, Observer {
+        viewModel.errorState.observe(viewLifecycleOwner, Observer {
             it?.let {
-                adapter.submitList(it)
+                Toast.makeText(context, "Error: $it", Toast.LENGTH_SHORT).show()
+                viewModel.handledError()
             }
         })
+    }
 
-        return binding.root
+    private fun initializeAdapter() {
+        adapter = AsteroidAdapter(viewModel)
+        binding.asteroidRecycler.adapter = adapter
+    }
+
+    private fun initializeViewModel() {
+        val application = requireNotNull(this.activity).application
+        val dataSource = AsteroidDatabase.getInstance(application).asteriodDao
+        val mainViewModelFactory = MainViewModelFactory(dataSource, application)
+        viewModel = ViewModelProvider(this, mainViewModelFactory).get(MainViewModel::class.java)
+        binding.viewModel = viewModel
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
