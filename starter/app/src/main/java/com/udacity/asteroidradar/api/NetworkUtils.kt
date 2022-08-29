@@ -20,10 +20,6 @@ import java.util.concurrent.TimeUnit
 
 private val TAG = "NetworkUtils"
 
-private val moshi = Moshi.Builder()
-    .add(KotlinJsonAdapterFactory())
-    .build()
-
 //I set this here because the NASA API takes a bit of time to return a response
 private val okHttpClient = OkHttpClient.Builder()
     .readTimeout(1, TimeUnit.MINUTES)
@@ -31,7 +27,7 @@ private val okHttpClient = OkHttpClient.Builder()
     .build()
 
 private val retrofit = Retrofit.Builder()
-    .addConverterFactory(MoshiConverterFactory.create(moshi))
+    .addConverterFactory(ScalarsConverterFactory.create()) //I found difficulty using Moshi. Would appreciate feedback
     .baseUrl(Constants.BASE_URL)
     .client(okHttpClient)
     .build()
@@ -40,7 +36,7 @@ interface NASANEoWsApiService {
     @GET("neo/rest/v1/feed")
     fun getAsteroids(@Query("start_date") startDate: String,
                      @Query("end_date") endDate: String,
-                     @Query("api_key") apiKey: String): Call<JSONObject>
+                     @Query("api_key") apiKey: String): Call<String>
 }
 
 object NASANEoWsApi {

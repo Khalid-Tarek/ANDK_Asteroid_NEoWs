@@ -37,6 +37,19 @@ class MainFragment : Fragment() {
         return binding.root
     }
 
+    private fun initializeViewModel() {
+        val application = requireNotNull(this.activity).application
+        val dataSource = AsteroidDatabase.getInstance(application).asteriodDao
+        val mainViewModelFactory = MainViewModelFactory(dataSource, application)
+        viewModel = ViewModelProvider(this, mainViewModelFactory).get(MainViewModel::class.java)
+        binding.viewModel = viewModel
+    }
+
+    private fun initializeAdapter() {
+        adapter = AsteroidAdapter(viewModel)
+        binding.asteroidRecycler.adapter = adapter
+    }
+
     private fun setupObservers() {
         viewModel.asteroids.observe(viewLifecycleOwner, Observer {
             it?.let {
@@ -52,23 +65,10 @@ class MainFragment : Fragment() {
 
         viewModel.errorState.observe(viewLifecycleOwner, Observer {
             it?.let {
-                Toast.makeText(context, "Error: $it", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
                 viewModel.handledError()
             }
         })
-    }
-
-    private fun initializeAdapter() {
-        adapter = AsteroidAdapter(viewModel)
-        binding.asteroidRecycler.adapter = adapter
-    }
-
-    private fun initializeViewModel() {
-        val application = requireNotNull(this.activity).application
-        val dataSource = AsteroidDatabase.getInstance(application).asteriodDao
-        val mainViewModelFactory = MainViewModelFactory(dataSource, application)
-        viewModel = ViewModelProvider(this, mainViewModelFactory).get(MainViewModel::class.java)
-        binding.viewModel = viewModel
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

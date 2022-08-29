@@ -45,17 +45,18 @@ class MainViewModel(
 
         val (startDate, endDate) = getQueryDates()
 
+        //I am not sure how to use viewModelScope here. Would appreciate feedback
         NASANEoWsApi.retrofitService.getAsteroids(startDate, endDate, Constants.API_KEY)
-            .enqueue( object: Callback<JSONObject> {
+            .enqueue( object: Callback<String> {
 
-            override fun onFailure(call: Call<JSONObject>, t: Throwable) {
+            override fun onFailure(call: Call<String>, t: Throwable) {
                 Log.i(TAG, "Failure: $t")
                 enterErrorState(t)
             }
 
-            override fun onResponse(call: Call<JSONObject>, response: Response<JSONObject>) {
+            override fun onResponse(call: Call<String>, response: Response<String>) {
                 Log.i(TAG, response.toString())
-                val newList = parseAsteroidsJsonResult(response.body()!!)
+                val newList = parseAsteroidsJsonResult(JSONObject(response.body()!!))
                 _asteroids.value = newList
             }
         })
