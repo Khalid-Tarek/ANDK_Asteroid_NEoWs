@@ -1,16 +1,18 @@
 package com.udacity.asteroidradar.api
 
-import android.util.Log
+import androidx.core.view.PointerIconCompat
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.database.Asteroid
+import kotlinx.coroutines.Deferred
 import okhttp3.OkHttpClient
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import retrofit2.create
 import retrofit2.http.GET
 import retrofit2.http.Query
 import java.text.SimpleDateFormat
@@ -29,14 +31,17 @@ private val okHttpClient = OkHttpClient.Builder()
 private val retrofit = Retrofit.Builder()
     .addConverterFactory(ScalarsConverterFactory.create()) //I found difficulty using Moshi. Would appreciate feedback
     .baseUrl(Constants.BASE_URL)
-    .client(okHttpClient)
+//    .client(okHttpClient)
     .build()
 
 interface NASANEoWsApiService {
     @GET("neo/rest/v1/feed")
     fun getAsteroids(@Query("start_date") startDate: String,
                      @Query("end_date") endDate: String,
-                     @Query("api_key") apiKey: String): Call<String>
+                     @Query("api_key") apiKey: String = Constants.API_KEY): Call<String>
+
+    @GET("planetary/apod")
+    fun getImageOfTheDay(@Query("api_key") apiKey: String = Constants.API_KEY): Call<String>
 }
 
 object NASANEoWsApi {
@@ -80,6 +85,14 @@ fun parseAsteroidsJsonResult(jsonResult: JSONObject): ArrayList<Asteroid> {
     }
 
     return asteroidList
+}
+
+fun parseImageOfTheDay(jsonResult: JSONObject): PictureOfDay {
+    val mediaType = jsonResult.getString("media_type")
+    val title = jsonResult.getString("title")
+    val url = jsonResult.getString("url")
+
+    return PictureOfDay(mediaType, title, url)
 }
 
 private fun getNextSevenDaysFormattedDates(): ArrayList<String> {

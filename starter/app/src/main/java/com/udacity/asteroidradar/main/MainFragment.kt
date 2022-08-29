@@ -66,7 +66,7 @@ class MainFragment : Fragment() {
         viewModel.errorState.observe(viewLifecycleOwner, Observer {
             it?.let {
                 Toast.makeText(context, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
-                viewModel.handledError()
+                viewModel.onHandledError()
             }
         })
     }

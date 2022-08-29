@@ -1,8 +1,34 @@
 package com.udacity.asteroidradar
 
+import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
+import com.squareup.picasso.Picasso
+import com.udacity.asteroidradar.api.PictureOfDay
+
+private val TAG = "BindingAdapters"
+
+@BindingAdapter("imageOfTheDay")
+fun bindImageOfTheDay(imageView: ImageView, pictureOfDay: PictureOfDay?){
+    imageView.apply {
+        if(pictureOfDay != null || pictureOfDay?.mediaType == "image"){
+            val imageUri = pictureOfDay.url.toUri().buildUpon().scheme("https").build()
+            Picasso.with(context)
+                .load(imageUri)
+                .placeholder(R.drawable.placeholder_picture_of_day)
+                .into(this)
+            Log.i(TAG, "Picture Loaded Successfully from: $imageUri")
+        }
+        else {
+            Picasso.with(context)
+                .load(R.drawable.ic_baseline_broken_image_24)
+                .into(this)
+            Log.i(TAG, "Error Loading The Picture")
+        }
+    }
+}
 
 @BindingAdapter("statusIcon")
 fun bindAsteroidStatusImage(imageView: ImageView, isHazardous: Boolean) {

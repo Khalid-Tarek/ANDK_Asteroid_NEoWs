@@ -8,8 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.Constants
-import com.udacity.asteroidradar.api.NASANEoWsApi
-import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
+import com.udacity.asteroidradar.api.*
 import com.udacity.asteroidradar.database.Asteroid
 import com.udacity.asteroidradar.database.AsteroidDao
 import kotlinx.coroutines.launch
@@ -17,6 +16,7 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.await
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
@@ -37,30 +37,41 @@ class MainViewModel(
     val errorState: LiveData<Throwable>
         get() = _errorState
 
+    private val _navigateToAsteroid = MutableLiveData<Asteroid>()
+    val navigateToAsteroid: LiveData<Asteroid>
+        get() = _navigateToAsteroid
+
+    private val _imageOfTheDay = MutableLiveData<PictureOfDay>()
+    val imageOfTheDay: LiveData<PictureOfDay>
+        get() = _imageOfTheDay
+
     init {
+        getImageOfTheDay()
         getAsteroids()
     }
 
+    private fun getImageOfTheDay() {
+        viewModelScope.launch {
+            try {
+                val response = NASANEoWsApi.retrofitService.getImageOfTheDay().await()
+                _imageOfTheDay.value = parseImageOfTheDay(JSONObject(response))
+            } catch (e: Exception) {
+                _errorState.value = e
+            }
+        }
+    }
+
     private fun getAsteroids() {
-
-        val (startDate, endDate) = getQueryDates()
-
-        //I am not sure how to use viewModelScope here. Would appreciate feedback
-        NASANEoWsApi.retrofitService.getAsteroids(startDate, endDate, Constants.API_KEY)
-            .enqueue( object: Callback<String> {
-
-            override fun onFailure(call: Call<String>, t: Throwable) {
-                Log.i(TAG, "Failure: $t")
-                enterErrorState(t)
+        viewModelScope.launch {
+            try {
+                val (startDate, endDate) = getQueryDates()
+                val response = NASANEoWsApi.retrofitService.getAsteroids(startDate, endDate).await()
+                _asteroids.value = parseAsteroidsJsonResult(JSONObject(response))
+            } catch (e: Exception) {
+                Log.i(TAG, "Failure: $e")
+                _errorState.value = e
             }
-
-            override fun onResponse(call: Call<String>, response: Response<String>) {
-                Log.i(TAG, response.toString())
-                val newList = parseAsteroidsJsonResult(JSONObject(response.body()!!))
-                _asteroids.value = newList
-            }
-        })
-
+        }
     }
 
     private fun getQueryDates(): Pair<String, String> {
@@ -96,27 +107,9 @@ class MainViewModel(
                 true))
     }
 
-    private val _navigateToAsteroid = MutableLiveData<Asteroid>()
-    val navigateToAsteroid: LiveData<Asteroid>
-        get() = _navigateToAsteroid
-
-    fun getAsteroid(id: Long): Asteroid? {
-        var asteroid: Asteroid? = null
-        viewModelScope.launch {
-            asteroid = database.get(id)
-        }
-        return asteroid
-    }
-
     fun deleteOldAsteroids() {
         viewModelScope.launch {
             database.deleteOldAsteroids()
-        }
-    }
-
-    fun insertAsteroid(asteroid: Asteroid) {
-        viewModelScope.launch {
-            database.insert(asteroid)
         }
     }
 
@@ -128,12 +121,8 @@ class MainViewModel(
         _navigateToAsteroid.value = asteroid
     }
 
-    fun handledError() {
+    fun onHandledError() {
         _errorState.value = null
-    }
-
-    fun enterErrorState(t: Throwable) {
-        _errorState.value = t
     }
 
 }
