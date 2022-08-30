@@ -22,16 +22,9 @@ import java.util.concurrent.TimeUnit
 
 private val TAG = "NetworkUtils"
 
-//I set this here because the NASA API takes a bit of time to return a response
-private val okHttpClient = OkHttpClient.Builder()
-    .readTimeout(1, TimeUnit.MINUTES)
-    .connectTimeout(1, TimeUnit.MINUTES)
-    .build()
-
 private val retrofit = Retrofit.Builder()
-    .addConverterFactory(ScalarsConverterFactory.create()) //I found difficulty using Moshi. Would appreciate feedback
+    .addConverterFactory(ScalarsConverterFactory.create())
     .baseUrl(Constants.BASE_URL)
-//    .client(okHttpClient)
     .build()
 
 interface NASANEoWsApiService {
@@ -40,6 +33,7 @@ interface NASANEoWsApiService {
                      @Query("end_date") endDate: String,
                      @Query("api_key") apiKey: String = Constants.API_KEY): Call<String>
 
+    //Found difficulty using moshi with this request. Would appreciate some feedback
     @GET("planetary/apod")
     fun getImageOfTheDay(@Query("api_key") apiKey: String = Constants.API_KEY): Call<String>
 }

@@ -62,13 +62,6 @@ class MainFragment : Fragment() {
                 viewModel.doneNavigating()
             }
         })
-
-        viewModel.errorState.observe(viewLifecycleOwner, Observer {
-            it?.let {
-                Toast.makeText(context, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
-                viewModel.onHandledError()
-            }
-        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
