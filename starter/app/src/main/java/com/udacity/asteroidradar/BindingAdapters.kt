@@ -1,14 +1,33 @@
 package com.udacity.asteroidradar
 
 import android.util.Log
+import android.view.View
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import com.squareup.picasso.Picasso
 import com.udacity.asteroidradar.api.PictureOfDay
+import com.udacity.asteroidradar.main.NASANEoWsApiStatus
 
 private val TAG = "BindingAdapters"
+
+@BindingAdapter("errorStatus")
+fun bindErrorStatus(imageView: ImageView, status: NASANEoWsApiStatus){
+    imageView.visibility = when(status){
+        NASANEoWsApiStatus.FAILURE -> View.VISIBLE
+        else -> View.GONE
+    }
+}
+
+@BindingAdapter("loadingStatus")
+fun bindLoadingStatus(progressBar: ProgressBar, status: NASANEoWsApiStatus){
+    progressBar.visibility = when(status) {
+        NASANEoWsApiStatus.LOADING -> View.VISIBLE
+        else -> View.GONE
+    }
+}
 
 @BindingAdapter("imageOfTheDay")
 fun bindImageOfTheDay(imageView: ImageView, pictureOfDay: PictureOfDay?){

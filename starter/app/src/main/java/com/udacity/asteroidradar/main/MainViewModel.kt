@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavGraphNavigator
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.api.NASANEoWsApi
 import com.udacity.asteroidradar.api.PictureOfDay
@@ -18,6 +19,8 @@ import org.json.JSONObject
 import retrofit2.await
 import java.text.SimpleDateFormat
 import java.util.*
+
+enum class NASANEoWsApiStatus { LOADING, FAILURE, SUCCESS }
 
 class MainViewModel(
     val database: AsteroidDao,
@@ -39,9 +42,9 @@ class MainViewModel(
     val imageOfTheDay: LiveData<PictureOfDay>
         get() = _imageOfTheDay
 
-    private val _errorState = MutableLiveData<Throwable>()
-    val errorState: LiveData<Throwable>
-        get() = _errorState
+    private val _status = MutableLiveData<NASANEoWsApiStatus>()
+    val status: LiveData<NASANEoWsApiStatus>
+        get() = _status
 
     init {
         getImageOfTheDay()
@@ -54,7 +57,7 @@ class MainViewModel(
                 val response = NASANEoWsApi.retrofitService.getImageOfTheDay().await()
                 _imageOfTheDay.value = parseImageOfTheDay(JSONObject(response))
             } catch (e: Exception) {
-                _errorState.value = e
+                Log.i(TAG, "Failure: $e")
             }
         }
     }
@@ -62,12 +65,16 @@ class MainViewModel(
     private fun getAsteroids() {
         viewModelScope.launch {
             try {
+                _status.value = NASANEoWsApiStatus.LOADING
+
                 val (startDate, endDate) = getQueryDates()
                 val response = NASANEoWsApi.retrofitService.getAsteroids(startDate, endDate).await()
+
+                _status.value = NASANEoWsApiStatus.SUCCESS
                 _asteroids.value = parseAsteroidsJsonResult(JSONObject(response))
             } catch (e: Exception) {
                 Log.i(TAG, "Failure: $e")
-                _errorState.value = e
+                _status.value = NASANEoWsApiStatus.FAILURE
             }
         }
     }
@@ -97,10 +104,6 @@ class MainViewModel(
 
     fun navigateToAsteroid(asteroid: Asteroid) {
         _navigateToAsteroid.value = asteroid
-    }
-
-    fun onHandledError() {
-        _errorState.value = null
     }
 
 }
