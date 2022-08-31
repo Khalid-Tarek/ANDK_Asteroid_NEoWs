@@ -42,17 +42,11 @@ class MainViewModel(
 
     init {
         getImageOfTheDay()
-        viewModelScope.launch {
-            try {
-                _status.value = if (asteroids.value?.isEmpty() == true) NASANEoWsApiStatus.LOADING else NASANEoWsApiStatus.SUCCESS
-                asteroidRepository.refreshAsteroids()
-                _status.value = NASANEoWsApiStatus.SUCCESS
-            } catch (e: Exception) {
-                Log.i(TAG, "Failure while refreshing asteroids: $e")
-                _status.value = if (asteroids.value?.isEmpty() == true) NASANEoWsApiStatus.FAILURE else NASANEoWsApiStatus.SUCCESS
-            }
 
-        }
+        _status.value = if (asteroids.value?.isEmpty() == true)
+                            NASANEoWsApiStatus.FAILURE
+                        else
+                            NASANEoWsApiStatus.SUCCESS
     }
 
     private fun getImageOfTheDay() {
@@ -63,12 +57,6 @@ class MainViewModel(
             } catch (e: Exception) {
                 Log.i(TAG, "Failure: $e")
             }
-        }
-    }
-
-    fun deleteOldAsteroids() {
-        viewModelScope.launch {
-            database.asteriodDao.deleteOldAsteroids()
         }
     }
 

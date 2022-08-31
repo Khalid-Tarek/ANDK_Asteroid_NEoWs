@@ -26,6 +26,12 @@ class AsteroidRepository(private val database: AsteroidDatabase) {
         database.asteriodDao.insertAll(*asteroids.asDatabaseModel())
     }
 
+    suspend fun deleteOldAsteroids() = withContext(Dispatchers.IO){
+        val dateToday = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT, Locale.getDefault())
+            .format(Calendar.getInstance().time)
+        database.asteriodDao.deleteAsteroidsBefore(dateToday)
+    }
+
 }
 
 private fun getQueryDates(): Pair<String, String> {

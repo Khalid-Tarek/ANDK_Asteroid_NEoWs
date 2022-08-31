@@ -24,8 +24,8 @@ interface AsteroidDao {
     fun getAllAsteroids(): LiveData<List<Asteroid>>
 
     //TODO: Delete all asteroids before today
-    @Query("DELETE FROM asteroid_table")
-    suspend fun deleteOldAsteroids(){
+    @Query("DELETE FROM asteroid_table WHERE :date > closeApproachDate")
+    suspend fun deleteAsteroidsBefore(date: String){
 
     }
 }
