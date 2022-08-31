@@ -42,11 +42,7 @@ class MainViewModel(
 
     init {
         getImageOfTheDay()
-
-        _status.value = if (asteroids.value?.isEmpty() == true)
-                            NASANEoWsApiStatus.FAILURE
-                        else
-                            NASANEoWsApiStatus.SUCCESS
+        _status.value = NASANEoWsApiStatus.SUCCESS
     }
 
     private fun getImageOfTheDay() {
@@ -66,6 +62,19 @@ class MainViewModel(
 
     fun navigateToAsteroid(asteroid: Asteroid) {
         _navigateToAsteroid.value = asteroid
+    }
+
+    fun loadAsteroids() {
+        viewModelScope.launch {
+            try {
+                _status.value = NASANEoWsApiStatus.LOADING
+                asteroidRepository.refreshAsteroids()
+                _status.value = NASANEoWsApiStatus.SUCCESS
+            } catch (e: Exception) {
+                Log.i(TAG, "Failure: $e")
+                _status.value = NASANEoWsApiStatus.FAILURE
+            }
+        }
     }
 
 }
