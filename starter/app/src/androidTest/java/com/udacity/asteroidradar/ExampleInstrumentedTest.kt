@@ -9,6 +9,7 @@ import com.udacity.asteroidradar.database.AsteroidDatabase
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.After
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,19 +47,24 @@ class ExampleInstrumentedTest {
 
     @Test
     @Throws(Exception::class)
-    fun insertAndGetAsteroid() {
+    fun deleteOldAsteroid() {
         runBlocking {
             val asteroid = Asteroid(1,
                 "",
-                "",
+                "2022-07-07",
             0.0,
             0.0,
             0.0,
             0.0,
             false)
             asteroidDao.insert(asteroid)
-            val currentAsteroid = asteroidDao.get(1)
+
+            var currentAsteroid = asteroidDao.get(1)
             assertEquals(currentAsteroid, asteroid)
+
+            asteroidDao.deleteAsteroidsBefore("2022-08-08")
+            currentAsteroid = asteroidDao.get(1)
+            assertNull(currentAsteroid)
         }
     }
 }
