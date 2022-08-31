@@ -39,7 +39,7 @@ class MainFragment : Fragment() {
 
     private fun initializeViewModel() {
         val application = requireNotNull(this.activity).application
-        val dataSource = AsteroidDatabase.getInstance(application).asteriodDao
+        val dataSource = AsteroidDatabase.getInstance(application)
         val mainViewModelFactory = MainViewModelFactory(dataSource, application)
         viewModel = ViewModelProvider(this, mainViewModelFactory).get(MainViewModel::class.java)
         binding.viewModel = viewModel
