@@ -3,11 +3,11 @@ package com.udacity.asteroidradar.main
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.udacity.asteroidradar.database.AsteroidDao
+import com.udacity.asteroidradar.database.AsteroidDatabase
 import java.lang.IllegalArgumentException
 
 class MainViewModelFactory(
-    private val dataSource: AsteroidDao,
+    private val dataSource: AsteroidDatabase,
     private val application: Application
 ) : ViewModelProvider.Factory {
 

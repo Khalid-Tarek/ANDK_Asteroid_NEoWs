@@ -5,8 +5,8 @@ import androidx.room.*
 
 @Dao
 interface AsteroidDao {
-    @Insert
-    suspend fun insert(asteroid: Asteroid)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(vararg asteroids: Asteroid)
 
     @Update
     suspend fun update(asteroid: Asteroid)
@@ -20,7 +20,7 @@ interface AsteroidDao {
     @Query("DELETE FROM asteroid_table")
     suspend fun clear()
 
-    @Query("SELECT * FROM asteroid_table ORDER BY id DESC")
+    @Query("SELECT * FROM asteroid_table ORDER BY closeApproachDate ASC")
     fun getAllAsteroids(): LiveData<List<Asteroid>>
 
     //TODO: Delete all asteroids before today

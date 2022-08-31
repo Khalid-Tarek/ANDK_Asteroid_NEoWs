@@ -18,3 +18,18 @@ data class Asteroid(
     val distanceFromEarth: Double,
     val isPotentiallyHazardous: Boolean
 ) : Parcelable
+
+fun List<Asteroid>.asDatabaseModel(): Array<Asteroid>{
+    return this.map {
+        Asteroid(
+            id = it.id,
+            codename = it.codename,
+            closeApproachDate = it.closeApproachDate,
+            absoluteMagnitude = it.absoluteMagnitude,
+            estimatedDiameter = it.estimatedDiameter,
+            relativeVelocity = it.relativeVelocity,
+            distanceFromEarth = it.distanceFromEarth,
+            isPotentiallyHazardous = it.isPotentiallyHazardous
+        )
+    }.toTypedArray()
+}
