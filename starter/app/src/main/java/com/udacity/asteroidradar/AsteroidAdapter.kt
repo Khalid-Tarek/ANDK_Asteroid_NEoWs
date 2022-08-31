@@ -12,7 +12,8 @@ import com.udacity.asteroidradar.main.MainViewModel
 
 private val TAG = "AsteroidAdapter"
 
-class AsteroidAdapter(private val viewModel: MainViewModel): ListAdapter<Asteroid, AsteroidAdapter.AsteroidViewHolder>(AsteroidDiffCallback()) {
+class AsteroidAdapter(private val viewModel: MainViewModel) :
+    ListAdapter<Asteroid, AsteroidAdapter.AsteroidViewHolder>(AsteroidDiffCallback()) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AsteroidViewHolder {
@@ -23,13 +24,17 @@ class AsteroidAdapter(private val viewModel: MainViewModel): ListAdapter<Asteroi
         holder.bind(getItem(position))
     }
 
-    class AsteroidViewHolder private constructor(private val itemBinding: AsteroidViewHolderBinding)
-        : RecyclerView.ViewHolder(itemBinding.root) {
+    class AsteroidViewHolder private constructor(private val itemBinding: AsteroidViewHolderBinding) :
+        RecyclerView.ViewHolder(itemBinding.root) {
 
         companion object {
             fun from(viewModel: MainViewModel, parent: ViewGroup): AsteroidViewHolder {
                 val binding =
-                    AsteroidViewHolderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                    AsteroidViewHolderBinding.inflate(
+                        LayoutInflater.from(parent.context),
+                        parent,
+                        false
+                    )
                 binding.viewModel = viewModel
                 return AsteroidViewHolder(binding)
             }

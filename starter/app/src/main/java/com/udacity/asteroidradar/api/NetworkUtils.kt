@@ -1,23 +1,16 @@
 package com.udacity.asteroidradar.api
 
-import androidx.core.view.PointerIconCompat
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.udacity.asteroidradar.BuildConfig
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.database.Asteroid
-import kotlinx.coroutines.Deferred
-import okhttp3.OkHttpClient
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
-import retrofit2.create
 import retrofit2.http.GET
 import retrofit2.http.Query
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 
 private val TAG = "NetworkUtils"
@@ -29,17 +22,19 @@ private val retrofit = Retrofit.Builder()
 
 interface NASANEoWsApiService {
     @GET("neo/rest/v1/feed")
-    fun getAsteroids(@Query("start_date") startDate: String,
-                     @Query("end_date") endDate: String,
-                     @Query("api_key") apiKey: String = Constants.API_KEY): Call<String>
+    fun getAsteroids(
+        @Query("start_date") startDate: String,
+        @Query("end_date") endDate: String,
+        @Query("api_key") apiKey: String = BuildConfig.NASA_API_KEY
+    ): Call<String>
 
     //Found difficulty using moshi with this request. Would appreciate some feedback
     @GET("planetary/apod")
-    fun getImageOfTheDay(@Query("api_key") apiKey: String = Constants.API_KEY): Call<String>
+    fun getImageOfTheDay(@Query("api_key") apiKey: String = BuildConfig.NASA_API_KEY): Call<String>
 }
 
 object NASANEoWsApi {
-    val retrofitService : NASANEoWsApiService by lazy {
+    val retrofitService: NASANEoWsApiService by lazy {
         retrofit.create(NASANEoWsApiService::class.java)
     }
 }
@@ -71,8 +66,10 @@ fun parseAsteroidsJsonResult(jsonResult: JSONObject): ArrayList<Asteroid> {
                 val isPotentiallyHazardous = asteroidJson
                     .getBoolean("is_potentially_hazardous_asteroid")
 
-                val asteroid = Asteroid(id, codename, formattedDate, absoluteMagnitude,
-                    estimatedDiameter, relativeVelocity, distanceFromEarth, isPotentiallyHazardous)
+                val asteroid = Asteroid(
+                    id, codename, formattedDate, absoluteMagnitude,
+                    estimatedDiameter, relativeVelocity, distanceFromEarth, isPotentiallyHazardous
+                )
                 asteroidList.add(asteroid)
             }
         }

@@ -2,17 +2,15 @@ package com.udacity.asteroidradar.main
 
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.udacity.asteroidradar.AsteroidAdapter
 import com.udacity.asteroidradar.R
+import com.udacity.asteroidradar.api.AsteroidRepository
 import com.udacity.asteroidradar.database.AsteroidDatabase
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
-import kotlinx.coroutines.launch
 
 class MainFragment : Fragment() {
 
@@ -29,11 +27,6 @@ class MainFragment : Fragment() {
         setHasOptionsMenu(true)
         binding = FragmentMainBinding.inflate(inflater)
         binding.lifecycleOwner = this
-
-//        //Testing purposes only
-//        lifecycleScope.launch {
-//            AsteroidDatabase.getInstance(requireContext()).asteriodDao.clear()
-//        }
 
         initializeViewModel()
 
@@ -60,8 +53,7 @@ class MainFragment : Fragment() {
     private fun setupObservers() {
         viewModel.asteroids.observe(viewLifecycleOwner, Observer {
             it?.let {
-                if(it.isEmpty())
-                    viewModel.loadAsteroids()
+                if (it.isEmpty()) viewModel.loadAsteroids()
                 adapter.submitList(it)
             }
         })
@@ -71,6 +63,9 @@ class MainFragment : Fragment() {
                 viewModel.doneNavigating()
             }
         })
+        viewModel.currentFilter.observe(viewLifecycleOwner, Observer {
+            adapter.submitList(viewModel.getFilteredList())
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -79,6 +74,13 @@ class MainFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        viewModel.setFilter(
+            when (item.itemId) {
+                R.id.show_week_menu -> AsteroidRepository.AsteroidApiFilter.SHOW_WEEK
+                R.id.show_today_menu -> AsteroidRepository.AsteroidApiFilter.SHOW_TODAY
+                else -> AsteroidRepository.AsteroidApiFilter.SHOW_ALL
+            }
+        )
         return true
     }
 }

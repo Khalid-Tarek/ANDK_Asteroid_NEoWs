@@ -25,8 +25,4 @@ interface AsteroidDao {
 
     @Query("DELETE FROM asteroid_table WHERE :date > closeApproachDate")
     suspend fun deleteAsteroidsBefore(date: String)
-
-    //For testing purposes only
-    @Insert
-    fun insert(asteroid: Asteroid)
 }

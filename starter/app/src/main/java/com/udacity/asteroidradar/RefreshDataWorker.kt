@@ -3,10 +3,11 @@ package com.udacity.asteroidradar
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.udacity.asteroidradar.api.AsteroidRepository
 import com.udacity.asteroidradar.database.AsteroidDatabase.Companion.getInstance
 import retrofit2.HttpException
 
-class RefreshDataWorker(appContext: Context, params: WorkerParameters):
+class RefreshDataWorker(appContext: Context, params: WorkerParameters) :
     CoroutineWorker(appContext, params) {
 
     companion object {

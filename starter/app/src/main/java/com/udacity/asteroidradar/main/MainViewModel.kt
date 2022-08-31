@@ -6,10 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.udacity.asteroidradar.AsteroidRepository
-import com.udacity.asteroidradar.api.NASANEoWsApi
-import com.udacity.asteroidradar.api.PictureOfDay
-import com.udacity.asteroidradar.api.parseImageOfTheDay
+import com.udacity.asteroidradar.api.*
 import com.udacity.asteroidradar.database.Asteroid
 import com.udacity.asteroidradar.database.AsteroidDatabase
 import kotlinx.coroutines.launch
@@ -36,6 +33,10 @@ class MainViewModel(
     private val _status = MutableLiveData<NASANEoWsApiStatus>()
     val status: LiveData<NASANEoWsApiStatus>
         get() = _status
+
+    private var _currentFilter = MutableLiveData<AsteroidRepository.AsteroidApiFilter>()
+    val currentFilter: LiveData<AsteroidRepository.AsteroidApiFilter>
+        get() = _currentFilter
 
     private val asteroidRepository = AsteroidRepository(database)
     val asteroids = asteroidRepository.asteroids
@@ -75,6 +76,21 @@ class MainViewModel(
                 _status.value = NASANEoWsApiStatus.FAILURE
             }
         }
+    }
+
+    fun getFilteredList(): List<Asteroid> {
+        val (startDate, endDate) = getQueryDates()
+        return asteroids.value!!.filter {
+            when (_currentFilter.value) {
+                AsteroidRepository.AsteroidApiFilter.SHOW_WEEK -> it.closeApproachDate in startDate..endDate
+                AsteroidRepository.AsteroidApiFilter.SHOW_TODAY -> it.closeApproachDate == startDate
+                else -> true
+            }
+        }
+    }
+
+    fun setFilter(filter: AsteroidRepository.AsteroidApiFilter) {
+        _currentFilter.value = filter
     }
 
 }

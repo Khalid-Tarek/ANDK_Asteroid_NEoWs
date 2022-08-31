@@ -14,33 +14,33 @@ import com.udacity.asteroidradar.main.NASANEoWsApiStatus
 private val TAG = "BindingAdapters"
 
 @BindingAdapter("errorStatus")
-fun bindErrorStatus(imageView: ImageView, status: NASANEoWsApiStatus){
-    imageView.visibility = when(status){
+fun bindErrorStatus(imageView: ImageView, status: NASANEoWsApiStatus) {
+    imageView.visibility = when (status) {
         NASANEoWsApiStatus.FAILURE -> View.VISIBLE
         else -> View.GONE
     }
 }
 
 @BindingAdapter("loadingStatus")
-fun bindLoadingStatus(progressBar: ProgressBar, status: NASANEoWsApiStatus){
-    progressBar.visibility = when(status) {
+fun bindLoadingStatus(progressBar: ProgressBar, status: NASANEoWsApiStatus) {
+    progressBar.visibility = when (status) {
         NASANEoWsApiStatus.LOADING -> View.VISIBLE
         else -> View.GONE
     }
 }
 
 @BindingAdapter("imageOfTheDay")
-fun bindImageOfTheDay(imageView: ImageView, pictureOfDay: PictureOfDay?){
+fun bindImageOfTheDay(imageView: ImageView, pictureOfDay: PictureOfDay?) {
     imageView.apply {
-        if(pictureOfDay != null || pictureOfDay?.mediaType == "image"){
+        if (pictureOfDay != null || pictureOfDay?.mediaType == "image") {
             val imageUri = pictureOfDay.url.toUri().buildUpon().scheme("https").build()
             Picasso.with(context)
                 .load(imageUri)
                 .placeholder(R.drawable.placeholder_picture_of_day)
                 .into(this)
+            contentDescription = pictureOfDay.title
             Log.i(TAG, "Picture Loaded Successfully from: $imageUri")
-        }
-        else {
+        } else {
             Picasso.with(context)
                 .load(R.drawable.ic_baseline_broken_image_24)
                 .into(this)
@@ -64,10 +64,14 @@ fun bindAsteroidStatusImage(imageView: ImageView, isHazardous: Boolean) {
 
 @BindingAdapter("asteroidStatusImage")
 fun bindDetailsStatusImage(imageView: ImageView, isHazardous: Boolean) {
-    if (isHazardous) {
-        imageView.setImageResource(R.drawable.asteroid_hazardous)
-    } else {
-        imageView.setImageResource(R.drawable.asteroid_safe)
+    imageView.apply {
+        if (isHazardous) {
+            setImageResource(R.drawable.asteroid_hazardous)
+            contentDescription = context.getString(R.string.potentially_hazardous_asteroid_image)
+        } else {
+            setImageResource(R.drawable.asteroid_safe)
+            contentDescription = context.getString(R.string.not_hazardous_asteroid_image)
+        }
     }
 }
 

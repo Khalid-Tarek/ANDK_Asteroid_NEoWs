@@ -19,7 +19,7 @@ data class Asteroid(
     val isPotentiallyHazardous: Boolean
 ) : Parcelable
 
-fun List<Asteroid>.asDatabaseModel(): Array<Asteroid>{
+fun List<Asteroid>.asDatabaseModel(): Array<Asteroid> {
     return this.map {
         Asteroid(
             id = it.id,

@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(entities = [Asteroid::class], version = 1, exportSchema = false)
-abstract class AsteroidDatabase: RoomDatabase() {
+abstract class AsteroidDatabase : RoomDatabase() {
     abstract val asteriodDao: AsteroidDao
 
     companion object {
@@ -15,10 +15,10 @@ abstract class AsteroidDatabase: RoomDatabase() {
         private var INSTANCE: AsteroidDatabase? = null
 
         fun getInstance(context: Context): AsteroidDatabase {
-            synchronized(this){
+            synchronized(this) {
                 var instance = INSTANCE
 
-                if(instance == null) {
+                if (instance == null) {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
                         AsteroidDatabase::class.java,

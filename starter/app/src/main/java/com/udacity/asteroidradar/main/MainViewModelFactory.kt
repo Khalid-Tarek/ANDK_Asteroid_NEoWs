@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.udacity.asteroidradar.database.AsteroidDatabase
-import java.lang.IllegalArgumentException
 
 class MainViewModelFactory(
     private val dataSource: AsteroidDatabase,
@@ -13,7 +12,7 @@ class MainViewModelFactory(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if(modelClass.isAssignableFrom(MainViewModel::class.java))
+        if (modelClass.isAssignableFrom(MainViewModel::class.java))
             return MainViewModel(dataSource, application) as T
         throw IllegalArgumentException("Unknown ViewModel Class")
     }
